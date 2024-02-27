@@ -1,0 +1,61 @@
+type Post {
+    _id: ID
+    title: String!,
+    content: String!,
+    imageUrl: String!,
+    creator: User!,
+    createdAt: String
+    updatedAt: String
+}
+
+type Book {
+    title: String!,
+    author: String!
+}
+
+type User {
+    _id: ID!
+    email: String!,
+    name: String!,
+    status: String,
+    posts: [Post!]!
+}
+
+type AuthData {
+    token: String!,
+    _id: ID!
+}
+
+type PostData {
+    posts: [Post!]!,
+    totalItems: Int!
+}
+
+input UserData {
+    email: String!,
+    name: String!,
+    password: String!,
+}
+
+#input PostInput {
+#    title: String!,
+#    image: String!,
+#    content: String!
+#}
+#
+type Mutation {
+    createUser(userInput: UserData): User!
+    #    addPost(postInput: PostInput): Post!
+    #    updatePost(postId: String!, postInput: PostInput): Post!
+    #    deletePost(postId: String!): Boolean
+    updateStatus(status: String!): User!
+}
+
+type Query {
+    books: [Book]
+    getUser: User!,
+    loginUser(email: String!, password: String!): AuthData!,
+    getPosts(page: Int): PostData!,
+    getPost(id: ID!): Post!
+}
+
