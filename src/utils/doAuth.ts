@@ -9,7 +9,7 @@ interface AuthData {
 
 interface TokenMetadata {
     userId?: string,
-    userEmail?: string
+    email?: string
 }
 
 const doAuth = async (req: express.Request) => {
@@ -27,7 +27,7 @@ const doAuth = async (req: express.Request) => {
         let decoded = await jwt.verify(token, 'mysecretkey') as TokenMetadata;
         result.isAuth = true;
         result.userId = decoded.userId;
-        result.email = decoded.userEmail;
+        result.email = decoded.email;
     } catch(err) {
         console.log(err);
     }

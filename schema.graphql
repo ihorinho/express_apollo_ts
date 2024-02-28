@@ -1,11 +1,13 @@
+scalar Date
+
 type Post {
     _id: ID
     title: String!,
     content: String!,
-    imageUrl: String!,
+    image: String!
     creator: User!,
-    createdAt: String
-    updatedAt: String
+    createdAt: Date
+    updatedAt: Date
 }
 
 type Book {
@@ -37,17 +39,17 @@ input UserData {
     password: String!,
 }
 
-#input PostInput {
-#    title: String!,
-#    image: String!,
-#    content: String!
-#}
-#
+input PostInput {
+    title: String!,
+    image: String!,
+    content: String!
+}
+
 type Mutation {
     createUser(userInput: UserData): User!
-    #    addPost(postInput: PostInput): Post!
+    addPost(postInput: PostInput): Post!
     #    updatePost(postId: String!, postInput: PostInput): Post!
-    #    deletePost(postId: String!): Boolean
+    deletePost(postId: String!): Boolean
     updateStatus(status: String!): User!
 }
 

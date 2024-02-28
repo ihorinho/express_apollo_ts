@@ -1,4 +1,5 @@
 import { Schema, model, connect, Document } from 'mongoose';
+import {Post} from "../generated/resolvers-types";
 
 export interface IUser extends Document {
     _id: string;
@@ -6,7 +7,7 @@ export interface IUser extends Document {
     email: string;
     password: string;
     status: string;
-    posts: [];
+    posts: Post[];
 }
 
 // 2. Create a Schema corresponding to the document interface.

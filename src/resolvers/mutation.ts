@@ -1,10 +1,127 @@
-import {MutationResolvers, UserData} from '../generated/resolvers-types'
+import {MutationResolvers, UserData, PostInput} from '../generated/resolvers-types'
 import validator from "validator";
 import bcrypt from 'bcrypt';
 import { GraphQLError } from 'graphql';
-import { IUser, User } from '../model/user.js';
+import {IUser, User} from '../model/user.js';
+import {IPost, Post} from "../model/post.js";
+import * as mongoose from "mongoose";
+import imageProcessor from "../utils/imageProcessor.js";
 
-const mutataionResolvers: MutationResolvers = {
+const mutationResolvers: MutationResolvers = {
+    addPost: async (parent, args, {isAuth, userId}) => {
+        if (!isAuth) {
+            throw new GraphQLError('Authorization failed', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+        const postInput = args.postInput as PostInput;
+        const user = await User.findById(userId) as IUser;
+        if (!user) {
+            throw new GraphQLError('User not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
+        }
+
+        const title = postInput.title;
+        const content = postInput.content;
+        const image = postInput.image;
+        const validationErrors = [];
+        if (validator.isEmpty(title)) {
+            validationErrors.push({field: 'title', message: 'This is required field'});
+        }
+        if (validator.isEmpty(content) || !validator.isLength(content, {min:10})) {
+            validationErrors.push({field: 'content', message: 'Minimum length of content should be 10 characters'});
+        }
+
+        if (validationErrors.length > 0) {
+            throw new GraphQLError('Incorrect password', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    message: 'Invalid e-mail or password',
+                    errors: validationErrors
+                },
+            });
+        }
+
+        let post = new Post({
+            title: title,
+            image: image,
+            content: content,
+            creator: user
+        });
+
+        const createdPost = await post.save() as IPost;
+        user.posts.push(createdPost);
+        await user.save();
+
+        return {...createdPost.toObject(), createdAt: createdPost.createdAt.toISOString(), updatedAt: createdPost.updatedAt.toISOString(), imageUrl: createdPost.image};
+    },
+
+    deletePost: async (parent, {postId}, {isAuth, userId}) => {
+        if (!isAuth) {
+            throw new GraphQLError('Authorization failed', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+        let post = await Post.findById(postId).populate('creator') as IPost;
+        if (!post) {
+            throw new GraphQLError('Not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    message: `Post with id: ${postId} not found`,
+                },
+            });
+        }
+
+        if (userId !== post.creator._id.toString()) {
+            throw new GraphQLError('Authorization failed', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                    message: 'This user is not authorized to delete this post',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+        let user = await User.findById(userId) as IUser;
+        if (!user) {
+            throw new GraphQLError('Authorization failed', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                    message: 'User disabled or doesn\'t exist',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+            await Post.findByIdAndDelete(postId);
+            if (user.posts instanceof mongoose.Types.Array) {
+                user.posts.pull(postId);
+            }
+            imageProcessor.clearImage(post.image);
+            await user.save();
+
+            return true
+    },
+
     updateStatus: async (parent, args, {isAuth, userId}) => {
         if (!isAuth) {
             throw new GraphQLError('Authorization failed', {
@@ -77,4 +194,4 @@ const mutataionResolvers: MutationResolvers = {
     },
 };
 
-export default mutataionResolvers;
+export default mutationResolvers;

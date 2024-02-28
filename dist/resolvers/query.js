@@ -31,7 +31,7 @@ const queryResolvers = {
             posts = [];
         }
         posts = posts.map(p => {
-            return { ...p._doc, createdAt: p.createdAt.toISOString(), updatedAt: p.updatedAt.toISOString(), imageUrl: p.image };
+            return { ...p._doc, createdAt: p.createdAt.toISOString(), updatedAt: p.updatedAt.toISOString() };
         });
         return { posts: posts, totalItems: totalItems };
     },

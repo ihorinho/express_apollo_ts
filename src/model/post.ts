@@ -1,12 +1,12 @@
 import * as mongoose from "mongoose";
 import { Schema, Document, model } from "mongoose";
-import { IUser} from "./user.js";
+import {User} from "../generated/resolvers-types";
 
 export interface IPost extends Document {
     title: string,
     content: string,
     image: string,
-    creator: IUser,
+    creator: User,
     createdAt: Date,
     updatedAt: Date
 }

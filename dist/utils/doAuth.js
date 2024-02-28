@@ -12,7 +12,7 @@ const doAuth = async (req) => {
         let decoded = await jwt.verify(token, 'mysecretkey');
         result.isAuth = true;
         result.userId = decoded.userId;
-        result.email = decoded.userEmail;
+        result.email = decoded.email;
     }
     catch (err) {
         console.log(err);
