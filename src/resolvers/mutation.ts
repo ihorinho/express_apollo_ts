@@ -42,6 +42,9 @@ const mutationResolvers: MutationResolvers = {
         }
 
         if (validationErrors.length > 0) {
+            if (image) {
+                imageProcessor.clearImage(image);
+            }
             throw new GraphQLError('Validation failed', {
                 extensions: {
                     code: 'BAD_USER_INPUT',

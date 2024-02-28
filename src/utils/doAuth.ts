@@ -12,9 +12,9 @@ interface TokenMetadata {
     email?: string
 }
 
-const doAuth = async (req: express.Request) => {
+const parseTokenMetadata = async (req: express.Request) => {
     const result: AuthData = {
-      isAuth: false
+        isAuth: false
     };
 
     let bearer = req.headers.authorization;
@@ -35,4 +35,16 @@ const doAuth = async (req: express.Request) => {
     return result;
 }
 
-export default doAuth;
+export const doAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const tokenMetadata = await parseTokenMetadata(req) as AuthData;
+
+    req.isAuth = tokenMetadata.isAuth;
+    req.userId = tokenMetadata.userId;
+    req.userEmail = tokenMetadata.email;
+
+    return next();
+}
+
+export const doAuthApollo = async (req: express.Request) => {
+    return await parseTokenMetadata(req);
+}

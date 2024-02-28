@@ -4,37 +4,14 @@ import cors from 'cors';
 import express from 'express';
 import * as mongoose from "mongoose";
 import 'dotenv/config';
-import multer, {FileFilterCallback} from "multer";
-import doAuth from "./utils/doAuth.js";
+import multer from "multer";
+import {fileStorage, fileFilter} from "./utils/multer/config.js";
+import { doAuth, doAuthApollo } from "./utils/doAuth.js";
 import { readFileSync } from 'fs';
 import resolvers from "./resolvers/index.js";
 import {__dirname, path} from "./utils/pathHelper.js";
-
-type DestinationCallback = (error: Error | null, destination: string) => void
-type FileNameCallback = (error: Error | null, filename: string) => void
-export const fileStorage = multer.diskStorage({
-    destination: (
-        request: Express.Request,
-        file: Express.Multer.File,
-        cb: DestinationCallback
-    ): void => {
-        cb(null, 'pub/images');
-    },
-
-    filename: (
-        req: Express.Request,
-        file: Express.Multer.File,
-        cb: FileNameCallback
-    ): void => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname);
-    }
-})
-
-const fileFilter = function(req: Express.Request, file: Express.Multer.File, cb: FileFilterCallback) {
-    let result = file.mimetype = 'image/png' || 'image/jpg' || 'image/jpeg';
-    cb(null, !!result)
-};
+import {authenticate} from "./middleware/authenticate.js";
+import createImageResp from "./middleware/createImageResp.js";
 
 const app = express();
 
@@ -49,26 +26,18 @@ app.use((req, res, next) => {
     next();
 });
 
+//Bypass express request handling for images
 app.use('/images', express.static(path.join(__dirname, 'pub', 'images')));
-app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
+//Add auth data to request
+app.use(doAuth);
+//Save image handler
+app.put('/create-image',
+    authenticate,
+    multer({storage: fileStorage, fileFilter: fileFilter}).single('image'),
+    createImageResp
+);
 
-//TODO: add image uploading aviability only for authorized
-app.use(authorization);
-app.put('/create-image', (req, res, next) => {
-    //TODO: add image uploading aviability only for authorized
-    // if (!req.isAuth) {
-    //     const error = new Error('Authorization failed');
-    //     error.statusCode = 401;
-    //     throw error;
-    // }
-
-    if (!req.file) {
-        return res.status(200).json({message: 'No file provided'});
-    }
-
-    return res.status(201).json({suceess: true, image: 'images/' + req.file.filename});
-});
-
+//Read graphql schema and create apollo server
 const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
 const server = new ApolloServer({
     typeDefs,
@@ -78,13 +47,10 @@ await server.start();
 
 // Specify the path where we'd like to mount our server
 app.use('/graphql', cors<cors.CorsRequest>(), express.json(),   expressMiddleware(server, {
-    context: async ({ req }) => { return {... await doAuth(req)} },
+    context: async ({ req }) => { return {... await doAuthApollo(req)} },
 }),);
 
-app.use('/', (req, res, next) => {
-    res.send(path.join(__dirname, 'pub', 'images'));
-});
-
+//Start main server
 main().catch(err => console.log(err));
 
 async function main() {

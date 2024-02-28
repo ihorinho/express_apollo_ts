@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-const doAuth = async (req) => {
+const parseTokenMetadata = async (req) => {
     const result = {
         isAuth: false
     };
@@ -19,4 +19,13 @@ const doAuth = async (req) => {
     }
     return result;
 };
-export default doAuth;
+export const doAuth = async (req, res, next) => {
+    const tokenMetadata = await parseTokenMetadata(req);
+    req.isAuth = tokenMetadata.isAuth;
+    req.userId = tokenMetadata.userId;
+    req.userEmail = tokenMetadata.email;
+    return next();
+};
+export const doAuthApollo = async (req) => {
+    return await parseTokenMetadata(req);
+};
