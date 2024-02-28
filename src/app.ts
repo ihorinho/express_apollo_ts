@@ -53,7 +53,7 @@ app.use('/images', express.static(path.join(__dirname, 'pub', 'images')));
 app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 
 //TODO: add image uploading aviability only for authorized
-//app.use(authorization);
+app.use(authorization);
 app.put('/create-image', (req, res, next) => {
     //TODO: add image uploading aviability only for authorized
     // if (!req.isAuth) {

@@ -34,6 +34,7 @@ export type Mutation = {
   addPost: Post;
   createUser: User;
   deletePost?: Maybe<Scalars['Boolean']['output']>;
+  updatePost: Post;
   updateStatus: User;
 };
 
@@ -50,6 +51,12 @@ export type MutationCreateUserArgs = {
 
 export type MutationDeletePostArgs = {
   postId: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePostArgs = {
+  postId: Scalars['String']['input'];
+  postInput?: InputMaybe<PostInput>;
 };
 
 
@@ -246,6 +253,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, Partial<MutationAddPostArgs>>;
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, Partial<MutationCreateUserArgs>>;
   deletePost?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'postId'>>;
+  updatePost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'postId'>>;
   updateStatus?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateStatusArgs, 'status'>>;
 }>;
 

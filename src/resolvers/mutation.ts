@@ -42,10 +42,9 @@ const mutationResolvers: MutationResolvers = {
         }
 
         if (validationErrors.length > 0) {
-            throw new GraphQLError('Incorrect password', {
+            throw new GraphQLError('Validation failed', {
                 extensions: {
                     code: 'BAD_USER_INPUT',
-                    message: 'Invalid e-mail or password',
                     errors: validationErrors
                 },
             });
@@ -63,6 +62,77 @@ const mutationResolvers: MutationResolvers = {
         await user.save();
 
         return {...createdPost.toObject(), createdAt: createdPost.createdAt.toISOString(), updatedAt: createdPost.updatedAt.toISOString(), imageUrl: createdPost.image};
+    },
+
+    updatePost: async (parent, args, {isAuth, userId}) => {
+        if (!isAuth) {
+            throw new GraphQLError('Authorization failed', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+        const postId = args.postId;
+        const postInput = args.postInput as PostInput;
+        let post = await Post.findById(postId).populate('creator') as IPost;
+        if (!post) {
+            throw new GraphQLError('Post not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    message: 'Post does not exist or user is not authrized',
+                },
+            });
+        }
+
+        if (userId !== post.creator._id.toString()) {
+            throw new GraphQLError('Action is not authorizated', {
+                extensions: {
+                    code: 'NOT AUTHORIZED',
+                    http: {
+                        status: 401
+                    }
+                },
+            });
+        }
+
+        /* Validation */
+        const title = postInput.title;
+        const content = postInput.content;
+        const image = postInput.image;
+        const validationErrors = [];
+        if (validator.isEmpty(title)) {
+            validationErrors.push({field: 'title', message: 'This is required field'});
+        }
+        if (validator.isEmpty(content) || !validator.isLength(content, {min:10})) {
+            validationErrors.push({field: 'content', message: 'Minimum length of content should be 10 characters'});
+        }
+
+        if (validationErrors.length > 0) {
+            throw new GraphQLError('Validation failed', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    errors: validationErrors
+                },
+            });
+        }
+
+        let oldImage = post.image;
+
+        post.title = title;
+        post.content = content;
+        post.image = image;
+
+        const updatedPost = await post.save();
+
+        if (oldImage !== updatedPost.image) {
+            imageProcessor.clearImage(oldImage);
+        }
+
+        return {...updatedPost.toObject(), createdAt: updatedPost.createdAt.toISOString(), updatedAt: updatedPost.updatedAt.toISOString()};
     },
 
     deletePost: async (parent, {postId}, {isAuth, userId}) => {

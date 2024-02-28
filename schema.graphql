@@ -48,7 +48,7 @@ input PostInput {
 type Mutation {
     createUser(userInput: UserData): User!
     addPost(postInput: PostInput): Post!
-    #    updatePost(postId: String!, postInput: PostInput): Post!
+    updatePost(postId: String!, postInput: PostInput): Post!
     deletePost(postId: String!): Boolean
     updateStatus(status: String!): User!
 }
