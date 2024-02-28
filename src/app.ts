@@ -5,7 +5,7 @@ import express from 'express';
 import * as mongoose from "mongoose";
 import 'dotenv/config';
 import multer from "multer";
-import {fileStorage, fileFilter} from "./utils/multer/config.js";
+import {fileStorage, fileFilter} from "./config/multer.js";
 import { doAuth, doAuthApollo } from "./utils/doAuth.js";
 import { readFileSync } from 'fs';
 import resolvers from "./resolvers/index.js";
