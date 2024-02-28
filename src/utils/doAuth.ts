@@ -46,5 +46,13 @@ export const doAuth = async (req: express.Request, res: express.Response, next: 
 }
 
 export const doAuthApollo = async (req: express.Request) => {
-    return await parseTokenMetadata(req);
+    console.log(req);
+
+    const authData: AuthData = {
+        isAuth: req.isAuth,
+        userId: req.userId,
+        email: req.userEmail
+    };
+
+    return authData;
 }
