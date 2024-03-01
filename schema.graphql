@@ -23,6 +23,15 @@ type User {
     posts: [Post!]!
 }
 
+type MagentoProduct {
+    id: ID!,
+    sku: String!,
+    name: String!,
+    price: Float!,
+    type_id: String!,
+    description: String
+}
+
 type AuthData {
     token: String!,
     _id: ID!
@@ -54,7 +63,8 @@ type Mutation {
 }
 
 type Query {
-    books: [Book]
+    books: [Book],
+    getProduct(sku: String!): MagentoProduct!,
     getUser: User!,
     loginUser(email: String!, password: String!): AuthData!,
     getPosts(page: Int): PostData!,

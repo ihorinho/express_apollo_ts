@@ -1,4 +1,4 @@
-import {QueryResolvers} from '../generated/resolvers-types'
+import {MagentoProduct, QueryResolvers} from '../generated/resolvers-types'
 import validator from "validator";
 import bcrypt from 'bcrypt';
 import  jwt from "jsonwebtoken";
@@ -9,6 +9,9 @@ import { books } from '../model/book_demo.js'
 
 const queryResolvers: QueryResolvers = {
     books: () => books,
+    getProduct: async (parent, {sku}, {dataSources}) => {
+        return await dataSources.userAPI.getProduct(sku) as MagentoProduct;
+    },
     getPosts: async (parent, { page }, {isAuth, userId}) => {
         if (!isAuth) {
             throw new GraphQLError('Authorization failed', {

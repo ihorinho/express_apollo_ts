@@ -12,6 +12,7 @@ import resolvers from "./resolvers/index.js";
 import {__dirname, path} from "./utils/pathHelper.js";
 import {authenticate} from "./middleware/authenticate.js";
 import createImageResp from "./middleware/createImageResp.js";
+import UserAPI from "./magentoREST/user-api.js";
 
 const app = express();
 
@@ -47,8 +48,15 @@ await server.start();
 
 // Specify the path where we'd like to mount our server
 app.use('/graphql', cors<cors.CorsRequest>(), express.json(),   expressMiddleware(server, {
-    context: async ({ req }) => { return {... await doAuthApollo(req)} },
-}),);
+    context: async ({ req }) => {
+        return {
+            ... await doAuthApollo(req),
+            dataSources: {
+                userAPI:  new UserAPI(process.env.MAGENTO_TOKEN || '')
+            }
+        }
+    }})
+);
 
 //Start main server
 main().catch(err => console.log(err));

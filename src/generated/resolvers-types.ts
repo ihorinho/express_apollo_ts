@@ -29,6 +29,16 @@ export type Book = {
   title: Scalars['String']['output'];
 };
 
+export type MagentoProduct = {
+  __typename?: 'MagentoProduct';
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  price: Scalars['Float']['output'];
+  sku: Scalars['String']['output'];
+  type_id: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPost: Post;
@@ -92,6 +102,7 @@ export type Query = {
   books?: Maybe<Array<Maybe<Book>>>;
   getPost: Post;
   getPosts: PostData;
+  getProduct: MagentoProduct;
   getUser: User;
   loginUser: AuthData;
 };
@@ -104,6 +115,11 @@ export type QueryGetPostArgs = {
 
 export type QueryGetPostsArgs = {
   page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetProductArgs = {
+  sku: Scalars['String']['input'];
 };
 
 
@@ -203,8 +219,10 @@ export type ResolversTypes = ResolversObject<{
   Book: ResolverTypeWrapper<Book>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  MagentoProduct: ResolverTypeWrapper<MagentoProduct>;
   Mutation: ResolverTypeWrapper<{}>;
   Post: ResolverTypeWrapper<Post>;
   PostData: ResolverTypeWrapper<PostData>;
@@ -221,8 +239,10 @@ export type ResolversParentTypes = ResolversObject<{
   Book: Book;
   Boolean: Scalars['Boolean']['output'];
   Date: Scalars['Date']['output'];
+  Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  MagentoProduct: MagentoProduct;
   Mutation: {};
   Post: Post;
   PostData: PostData;
@@ -248,6 +268,16 @@ export type BookResolvers<ContextType = any, ParentType extends ResolversParentT
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type MagentoProductResolvers<ContextType = any, ParentType extends ResolversParentTypes['MagentoProduct'] = ResolversParentTypes['MagentoProduct']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  sku?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, Partial<MutationAddPostArgs>>;
@@ -278,6 +308,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   books?: Resolver<Maybe<Array<Maybe<ResolversTypes['Book']>>>, ParentType, ContextType>;
   getPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryGetPostArgs, 'id'>>;
   getPosts?: Resolver<ResolversTypes['PostData'], ParentType, ContextType, Partial<QueryGetPostsArgs>>;
+  getProduct?: Resolver<ResolversTypes['MagentoProduct'], ParentType, ContextType, RequireFields<QueryGetProductArgs, 'sku'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   loginUser?: Resolver<ResolversTypes['AuthData'], ParentType, ContextType, RequireFields<QueryLoginUserArgs, 'email' | 'password'>>;
 }>;
@@ -295,6 +326,7 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   AuthData?: AuthDataResolvers<ContextType>;
   Book?: BookResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  MagentoProduct?: MagentoProductResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostData?: PostDataResolvers<ContextType>;

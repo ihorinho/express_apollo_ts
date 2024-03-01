@@ -7,6 +7,9 @@ import { Post } from "../model/post.js";
 import { books } from '../model/book_demo.js';
 const queryResolvers = {
     books: () => books,
+    getProduct: async (parent, { sku }, { dataSources }) => {
+        return await dataSources.userAPI.getProduct(sku);
+    },
     getPosts: async (parent, { page }, { isAuth, userId }) => {
         if (!isAuth) {
             throw new GraphQLError('Authorization failed', {

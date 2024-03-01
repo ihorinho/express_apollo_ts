@@ -46,8 +46,6 @@ export const doAuth = async (req: express.Request, res: express.Response, next: 
 }
 
 export const doAuthApollo = async (req: express.Request) => {
-    console.log(req);
-
     const authData: AuthData = {
         isAuth: req.isAuth,
         userId: req.userId,
