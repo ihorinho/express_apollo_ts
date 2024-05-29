@@ -34,6 +34,7 @@ const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
 const server = new ApolloServer({
     typeDefs,
     resolvers,
+    introspection: true,
 });
 await server.start();
 // Specify the path where we'd like to mount our server
